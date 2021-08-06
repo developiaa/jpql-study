@@ -1,2 +1,46 @@
-package jpql;public class JpaMain {
+package jpql;
+
+import javax.persistence.*;
+import java.util.List;
+
+public class JpaMain {
+    public static void main(String[] args) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpql");
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        try {
+            Member member = new Member();
+            member.setUsername("hello");
+            member.setAge(10);
+            em.persist(member);
+            // 반환 타입이 명확할 때
+            TypedQuery<Member> query = em.createQuery("select m from Member m", Member.class);
+            List<Member> resultList = query.getResultList();
+            for (Member member1 : resultList) {
+                System.out.println("member1 = " + member1);
+            }
+            // 반환 타입이 명확하지 않을 때 사용
+            Query query2 = em.createQuery("select m.age, m.username from Member m where m.id=1", Member.class);
+            Object singleResult = query2.getSingleResult();
+            System.out.println("singleResult = " + singleResult);
+
+
+            // 파라미터 바인딩
+            Member singleResult1 = em.createQuery("select m from Member m where m.username =:username", Member.class)
+                    .setParameter("username", "hello").getSingleResult();
+            System.out.println("singleResult1 = " + singleResult1.getUsername());
+
+
+
+
+            tx.commit();
+        } catch (Exception e) {
+            tx.rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+        emf.close();
+    }
 }
