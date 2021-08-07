@@ -32,7 +32,12 @@ public class JpaMain {
             System.out.println("singleResult1 = " + singleResult1.getUsername());
 
 
+            // 프로젝션 - 여러 값 조회
+            List<Object[]> resultList2 = em.createQuery("select m.username, m.age from Member m").getResultList();
 
+            // 프로젝션 - 여러 값 조회 (DTO 사용)
+            List<MemberDTO> result = em.createQuery("select new jpql.MemberDTO(m.username, m.age) from Member m", MemberDTO.class).getResultList();
+            MemberDTO memberDTO = result.get(0);
 
             tx.commit();
         } catch (Exception e) {
