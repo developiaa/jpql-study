@@ -54,6 +54,25 @@ public class JpaMain {
                     .setMaxResults(20)
                     .getResultList();
 
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
+
+            Member member2 = new Member();
+            member2.setUsername("member1");
+            member2.setAge(10);
+            member2.setTeam(team);
+            em.persist(member2);
+            em.flush();
+            em.clear();
+
+//            String query3 = "select m from Member m inner join m.team t";
+            // 조인대상 필터링
+//            String query3 = "select m from Member m inner join m.team t on t.name='teamA'";
+            // 연관관계 없는 엔티티 외부 조인
+            String query3 = "select m from Member m left join Team t on m.username = t.name";
+            List<Member> result3 = em.createQuery(query3, Member.class).getResultList();
+
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
