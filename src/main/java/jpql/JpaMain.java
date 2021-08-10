@@ -78,6 +78,20 @@ public class JpaMain {
             String query4 = "select m.username, 'HELLO', true from Member m where m.type=jpql.MemberType.ADMIN";
             List<Member> resultList1 = em.createQuery(query4, Member.class).getResultList();
 
+
+            // 조건식 - 기본 case 식
+            String query5 = "select "+
+                                    "case when m.age <= 10 then '학생요금'"+
+                                    "     when m.age >= 60 then '경로요금'"+
+                                    "     else '일반요금'" +
+                                    "end "+
+                                "from Member m";
+            List<String> resultList3 = em.createQuery(query5, String.class).getResultList();
+
+            // coalesce 하나씩 조회해서 null이 아니면 반환
+            String query6 = "select coalesce(m.username, '이름 없는 회원') from Member m";
+            List<String> resultList4 = em.createQuery(query6, String.class).getResultList();
+
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
