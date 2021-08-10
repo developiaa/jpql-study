@@ -92,6 +92,16 @@ public class JpaMain {
             String query6 = "select coalesce(m.username, '이름 없는 회원') from Member m";
             List<String> resultList4 = em.createQuery(query6, String.class).getResultList();
 
+            // size : 컬렉션의 갯수를 파악할 때 사용
+            String query7 = "select size(t.members) from Team t";
+            List<String> resultList5 = em.createQuery(query7, String.class).getResultList();
+
+            // 사용자 정의 함수
+            String query8 = "select function('group_concat',m.username) from Member m";
+            // hibernate는 이렇게도 가능
+            String query9 = "select group_concat(m.username) from Member m";
+            List<Integer> resultList6 = em.createQuery(query8, Integer.class).getResultList();
+
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
