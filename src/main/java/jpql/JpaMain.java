@@ -1,6 +1,7 @@
 package jpql;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.List;
 
 public class JpaMain {
@@ -101,6 +102,21 @@ public class JpaMain {
             // hibernate는 이렇게도 가능
             String query9 = "select group_concat(m.username) from Member m";
             List<Integer> resultList6 = em.createQuery(query8, Integer.class).getResultList();
+
+            // 경로 표현식
+            // m.username - 상태 필드, 단일값이므로 탐색 불가
+            // m.team - 단일값 연관 경로 : 묵시적 내부 조인 발생, 탐색 가능
+            // -> 단 실무에서는 쿼리 튜닝이 힘들기 때문에 명시적 조인을 쓰는게 좋다.
+
+            String query10 = "select m.username from Member m";
+            List<String> resultList7 = em.createQuery(query10, String.class).getResultList();
+
+            // t.members - 컬렉션 값 연관 경로 : 묵시적 내부 조인 발생, 탐색 불가
+            // -> from 절에서 명시적 조인을 통해 별칭을 통해 탐색 가능
+            // select m.username From Team t join t.members m
+            String query11 = "select t.members from Team t";
+            Collection resultList8 = em.createQuery(query11, Collection.class).getResultList();
+
 
             tx.commit();
         } catch (Exception e) {
