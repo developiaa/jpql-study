@@ -81,12 +81,12 @@ public class JpaMain {
 
 
             // 조건식 - 기본 case 식
-            String query5 = "select "+
-                                    "case when m.age <= 10 then '학생요금'"+
-                                    "     when m.age >= 60 then '경로요금'"+
-                                    "     else '일반요금'" +
-                                    "end "+
-                                "from Member m";
+            String query5 = "select " +
+                    "case when m.age <= 10 then '학생요금'" +
+                    "     when m.age >= 60 then '경로요금'" +
+                    "     else '일반요금'" +
+                    "end " +
+                    "from Member m";
             List<String> resultList3 = em.createQuery(query5, String.class).getResultList();
 
             // coalesce 하나씩 조회해서 null이 아니면 반환
@@ -117,6 +117,42 @@ public class JpaMain {
             String query11 = "select t.members from Team t";
             Collection resultList8 = em.createQuery(query11, Collection.class).getResultList();
 
+
+            // fetch join - 지연로딩 발생안함
+            // 일반 조인은 연관된 엔티티를 함께 조회하지 않음
+            // 페치 조인을 사용할때만 연관된 엔티티도 함께 조회(즉시 로딩)
+            // -> 객체 그래프를 SQL 한번에 조회하는 개념
+            Team teamA = new Team();
+            teamA.setName("팀A");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("팀A");
+            em.persist(teamB);
+
+            Member member3 = new Member();
+            member3.setUsername("회원1");
+            member3.setTeam(teamA);
+
+            Member member4 = new Member();
+            member4.setUsername("회원2");
+            member4.setTeam(teamA);
+
+            Member member5 = new Member();
+            member5.setUsername("회원3");
+            member5.setTeam(teamB);
+
+            String query12 = "select m from Member m join fetch m.team t";
+            List<Member> resultList9 = em.createQuery(query12, Member.class).getResultList();
+
+            for (Member member1 : resultList9) {
+                // select m from Member m으로 조회하면
+                // 회원1, 팀A(SQL)
+                // 회원2, 팀A(1차캐시)
+                // 회원3, 팀B(SQL)
+                // 3번 조회함 -> N+1문제
+                System.out.println("member1 = " + member1.getUsername() + " ," + member.getTeam().getName());
+            }
 
             tx.commit();
         } catch (Exception e) {
