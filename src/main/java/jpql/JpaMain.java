@@ -154,6 +154,13 @@ public class JpaMain {
                 System.out.println("member1 = " + member1.getUsername() + " ," + member.getTeam().getName());
             }
 
+            // 벌크 연산 수행 전 FLUSH 됨
+            // 영속성 컨텍스트를 무시하고 DB에 직접 반영
+            int resultCount = em.createQuery("update Member m set m.age=20").executeUpdate();
+            
+            em.clear(); // 벌크 연산 수행 후 영속성 컨텍스트 초기화 할 것
+            Member findMember = em.find(Member.class, member2.getId());
+            System.out.println("findMember.getAge() = " + findMember.getAge());
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
